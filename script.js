@@ -45,7 +45,6 @@ const bottomColors = [
   { name: "Brown", hex: "#5A3A1A", base: "brown" },
   { name: "Navy Blue", hex: "#0B1C2D", base: "navy" },
 
-  /* ✅ DENIM BLUE — PANT ONLY */
   { name: "Denim Blue", hex: "#4A6FA5", base: "denim" }
 ];
 
@@ -59,8 +58,8 @@ function renderColors() {
   topDiv.innerHTML = "";
   bottomDiv.innerHTML = "";
 
-  topColors.forEach(color => topDiv.appendChild(createCard(color, "top")));
-  bottomColors.forEach(color => bottomDiv.appendChild(createCard(color, "bottom")));
+  topColors.forEach(c => topDiv.appendChild(createCard(c, "top")));
+  bottomColors.forEach(c => bottomDiv.appendChild(createCard(c, "bottom")));
 }
 
 function createCard(color, type) {
@@ -86,7 +85,7 @@ function createCard(color, type) {
 }
 
 /* =========================
-   🧠 AUTO-SUGGEST STYLE ENGINE
+   🧠 STYLE RULES + AUTO-SUGGEST
    ========================= */
 function checkOutfit() {
   const result = document.getElementById("result");
@@ -96,13 +95,11 @@ function checkOutfit() {
     return;
   }
 
-  /* 🔒 STYLE RULES */
   const rules = {
     white: ["black", "grey", "denim", "navy", "beige", "brown", "maroon"],
     "off white": ["black", "navy", "brown", "maroon"],
     cream: ["navy", "brown", "black", "grey", "denim"],
 
-    /* 🖤 BLACK TOP — UPDATED AS REQUESTED */
     black: ["white", "cream", "light grey", "brown", "denim"],
 
     "light grey": ["black", "navy", "brown"],
@@ -123,7 +120,6 @@ function checkOutfit() {
     pink: ["white", "black", "denim"],
     lavender: ["white", "black", "brown"],
 
-    /* 👖 DENIM BLUE PANT RULES */
     denim: ["white", "black", "pink", "cream"]
   };
 
@@ -131,14 +127,24 @@ function checkOutfit() {
   const bottomKey = selectedBottom.base;
   const allowedBottoms = rules[topKey];
 
+  /* ❌ NOT CLEAN → AUTO-SUGGEST */
   if (!allowedBottoms || !allowedBottoms.includes(bottomKey)) {
+    const suggestions = allowedBottoms
+      ? allowedBottoms.map(formatName).join(", ")
+      : "neutral colors";
+
     result.innerHTML = `
       ❌ This combination is not clean & versatile.<br><br>
-      Try some other combinations.
+      ✅ Try pairing this top with:<br>
+      <strong>${suggestions}</strong><br><br>
+      👟 Footwear:<br>
+      White Sneakers<br>
+      Black Boots
     `;
     return;
   }
 
+  /* ✅ CLEAN */
   result.innerHTML = `
     ✅ Clean and versatile outfit.<br><br>
     👟 Footwear:<br>
@@ -148,8 +154,26 @@ function checkOutfit() {
 }
 
 /* =========================
+   🔤 FORMAT NAMES
+   ========================= */
+function formatName(base) {
+  const map = {
+    white: "White",
+    black: "Black",
+    grey: "Grey",
+    "light grey": "Light Grey",
+    navy: "Navy Blue",
+    beige: "Beige",
+    brown: "Brown",
+    denim: "Denim Blue",
+    maroon: "Maroon",
+    cream: "Cream",
+    "off white": "Off White"
+  };
+  return map[base] || base;
+}
+
+/* =========================
    🚀 INIT
    ========================= */
 renderColors();
-
-
