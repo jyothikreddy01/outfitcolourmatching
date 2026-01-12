@@ -1,56 +1,66 @@
 let selectedTop = null;
 let selectedBottom = null;
 
-/* 🎨 COLOR DATABASE */
-const colors = [
-  { name: "White", hex: "#FFFFFF", type: "neutral", base: "white" },
-  { name: "Off White", hex: "#FAF9F6", type: "neutral", base: "off white" },
-  { name: "Cream", hex: "#F5F5DC", type: "neutral", base: "cream" },
+/* =========================
+   🎨 TOP COLORS (NO DENIM)
+   ========================= */
+const topColors = [
+  { name: "White", hex: "#FFFFFF", base: "white" },
+  { name: "Off White", hex: "#FAF9F6", base: "off white" },
+  { name: "Cream", hex: "#F5F5DC", base: "cream" },
 
-  { name: "Black", hex: "#000000", type: "dark", base: "black" },
-  { name: "Charcoal Grey", hex: "#2E2E2E", type: "dark", base: "grey" },
-  { name: "Grey", hex: "#9E9E9E", type: "neutral", base: "grey" },
-  { name: "Light Grey", hex: "#D6D6D6", type: "neutral", base: "light grey" },
+  { name: "Black", hex: "#000000", base: "black" },
+  { name: "Charcoal Grey", hex: "#2E2E2E", base: "grey" },
+  { name: "Grey", hex: "#9E9E9E", base: "grey" },
+  { name: "Light Grey", hex: "#D6D6D6", base: "light grey" },
 
-  { name: "Light Blue", hex: "#ADD8E6", type: "pastel", base: "light blue" },
-  { name: "Blue", hex: "#1E88E5", type: "bright", base: "blue" },
-  { name: "Navy", hex: "#0B1C2D", type: "dark", base: "navy" },
+  { name: "Light Blue", hex: "#ADD8E6", base: "light blue" },
+  { name: "Blue", hex: "#1E88E5", base: "blue" },
+  { name: "Navy", hex: "#0B1C2D", base: "navy" },
 
-  { name: "Denim Blue", hex: "#4A6FA5", type: "denim", base: "denim" },
+  { name: "Olive", hex: "#6B8E23", base: "olive" },
+  { name: "Forest Green", hex: "#1B5E20", base: "forest green" },
 
-  { name: "Mint", hex: "#B2DFDB", type: "pastel", base: "mint" },
-  { name: "Olive", hex: "#6B8E23", type: "earth", base: "olive" },
-  { name: "Forest Green", hex: "#1B5E20", type: "dark", base: "forest green" },
+  { name: "Beige", hex: "#D8CFC4", base: "beige" },
+  { name: "Brown", hex: "#5A3A1A", base: "brown" },
 
-  { name: "Beige", hex: "#D8CFC4", type: "neutral", base: "beige" },
-  { name: "Brown", hex: "#5A3A1A", type: "earth", base: "brown" },
+  { name: "Red", hex: "#C62828", base: "red" },
+  { name: "Maroon", hex: "#4E0707", base: "maroon" },
 
-  { name: "Red", hex: "#C62828", type: "bright", base: "red" },
-  { name: "Maroon", hex: "#4E0707", type: "dark", base: "maroon" },
-
-  { name: "Mustard", hex: "#FBC02D", type: "bright", base: "mustard" },
-  { name: "Pink", hex: "#EC407A", type: "bright", base: "pink" },
-  { name: "Lavender", hex: "#E6E6FA", type: "pastel", base: "lavender" }
+  { name: "Mustard", hex: "#FBC02D", base: "mustard" },
+  { name: "Pink", hex: "#EC407A", base: "pink" },
+  { name: "Lavender", hex: "#E6E6FA", base: "lavender" }
 ];
 
-/* 👖 SAFE BOTTOM RULES */
-function isSafeBottom(color) {
-  if (color.base === "denim") return true;
-  if (color.type === "bright" || color.type === "pastel") return false;
-  return true;
-}
+/* =========================
+   👖 BOTTOM COLORS (DENIM ONLY HERE)
+   ========================= */
+const bottomColors = [
+  { name: "White", hex: "#FFFFFF", base: "white" },
+  { name: "Black", hex: "#000000", base: "black" },
+  { name: "Grey", hex: "#9E9E9E", base: "grey" },
+  { name: "Light Grey", hex: "#D6D6D6", base: "light grey" },
+  { name: "Charcoal Grey", hex: "#2E2E2E", base: "grey" },
+  { name: "Beige", hex: "#D8CFC4", base: "beige" },
+  { name: "Brown", hex: "#5A3A1A", base: "brown" },
+  { name: "Navy Blue", hex: "#0B1C2D", base: "navy" },
 
-/* 🎨 RENDER COLORS */
+  /* ✅ DENIM BLUE — PANT ONLY */
+  { name: "Denim Blue", hex: "#4A6FA5", base: "denim" }
+];
+
+/* =========================
+   🎨 RENDER COLORS
+   ========================= */
 function renderColors() {
   const topDiv = document.getElementById("topColors");
   const bottomDiv = document.getElementById("bottomColors");
 
-  colors.forEach(color => {
-    topDiv.appendChild(createCard(color, "top"));
-    if (isSafeBottom(color)) {
-      bottomDiv.appendChild(createCard(color, "bottom"));
-    }
-  });
+  topDiv.innerHTML = "";
+  bottomDiv.innerHTML = "";
+
+  topColors.forEach(color => topDiv.appendChild(createCard(color, "top")));
+  bottomColors.forEach(color => bottomDiv.appendChild(createCard(color, "bottom")));
 }
 
 function createCard(color, type) {
@@ -75,7 +85,9 @@ function createCard(color, type) {
   return card;
 }
 
-/* 👟 AUTO-SUGGEST FASHION ENGINE */
+/* =========================
+   🧠 AUTO-SUGGEST STYLE ENGINE
+   ========================= */
 function checkOutfit() {
   const result = document.getElementById("result");
 
@@ -84,25 +96,34 @@ function checkOutfit() {
     return;
   }
 
+  /* 🔒 STYLE RULES */
   const rules = {
     white: ["black", "grey", "denim", "navy", "beige", "brown", "maroon"],
     "off white": ["black", "navy", "brown", "maroon"],
     cream: ["navy", "brown", "black", "grey", "denim"],
-    black: ["white"],
+
+    /* 🖤 BLACK TOP — UPDATED AS REQUESTED */
+    black: ["white", "cream", "light grey", "brown", "denim"],
+
     "light grey": ["black", "navy", "brown"],
     "light blue": ["white", "black"],
     blue: ["white", "black"],
     navy: ["white", "off white", "cream", "light grey", "beige", "brown"],
-    mint: ["white", "cream", "brown"],
+
     olive: ["white", "cream", "brown"],
     "forest green": ["white", "cream"],
+
     beige: ["navy", "denim", "brown", "black"],
     brown: ["white", "cream", "beige"],
+
     red: ["white", "black"],
     maroon: ["white", "beige", "cream"],
     mustard: ["white", "black"],
+
     pink: ["white", "black", "denim"],
     lavender: ["white", "black", "brown"],
+
+    /* 👖 DENIM BLUE PANT RULES */
     denim: ["white", "black", "pink", "cream"]
   };
 
@@ -111,46 +132,24 @@ function checkOutfit() {
   const allowedBottoms = rules[topKey];
 
   if (!allowedBottoms || !allowedBottoms.includes(bottomKey)) {
-    const suggestionText = allowedBottoms
-      ? allowedBottoms.map(formatName).join(", ")
-      : "neutral colors";
-
     result.innerHTML = `
       ❌ This combination is not clean & versatile.<br><br>
-      ✅ Try pairing this top with:<br>
-      <strong>${suggestionText}</strong><br><br>
-      👟 Footwear:<br>
-      White Sneakers<br>
-      Black Boots
+      Try some other combinations.
     `;
     return;
   }
 
   result.innerHTML = `
     ✅ Clean and versatile outfit.<br><br>
-    👟 Best footwear options:<br>
+    👟 Footwear:<br>
     White Sneakers<br>
     Black Boots
   `;
 }
 
-/* 🔤 FORMAT NAMES */
-function formatName(base) {
-  const map = {
-    white: "White",
-    black: "Black",
-    grey: "Grey",
-    "light grey": "Light Grey",
-    navy: "Navy Blue",
-    beige: "Beige",
-    brown: "Brown",
-    denim: "Denim Blue",
-    maroon: "Maroon",
-    cream: "Cream",
-    "off white": "Off White"
-  };
-  return map[base] || base;
-}
-
-/* 🚀 INIT */
+/* =========================
+   🚀 INIT
+   ========================= */
 renderColors();
+
+
