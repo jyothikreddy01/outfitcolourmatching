@@ -1,87 +1,3 @@
-let selectedTop = null;
-let selectedBottom = null;
-
-/* 🎨 COLOR DATABASE */
-const colors = [
-  { name: "White", hex: "#FFFFFF", type: "neutral", base: "white" },
-  { name: "Off White", hex: "#FAF9F6", type: "neutral", base: "white" },
-  { name: "Cream", hex: "#F5F5DC", type: "neutral", base: "white" },
-
-  { name: "Black", hex: "#000000", type: "dark", base: "black" },
-  { name: "Charcoal Grey", hex: "#2E2E2E", type: "dark", base: "grey" },
-  { name: "Grey", hex: "#9E9E9E", type: "neutral", base: "grey" },
-  { name: "Light Grey", hex: "#D6D6D6", type: "neutral", base: "grey" },
-
-  { name: "Light Blue", hex: "#ADD8E6", type: "pastel", base: "blue" },
-  { name: "Blue", hex: "#1E88E5", type: "bright", base: "blue" },
-  { name: "Navy", hex: "#0B1C2D", type: "dark", base: "blue" },
-
-  { name: "Mint", hex: "#B2DFDB", type: "pastel", base: "green" },
-  { name: "Olive", hex: "#6B8E23", type: "earth", base: "green" },
-  { name: "Forest Green", hex: "#1B5E20", type: "dark", base: "green" },
-
-  { name: "Beige", hex: "#D8CFC4", type: "neutral", base: "brown" },
-  { name: "Brown", hex: "#5A3A1A", type: "earth", base: "brown" },
-
-  { name: "Red", hex: "#C62828", type: "bright", base: "red" },
-  { name: "Maroon", hex: "#4E0707", type: "dark", base: "red" },
-
-  { name: "Mustard", hex: "#FBC02D", type: "bright", base: "yellow" },
-
-  { name: "Pink", hex: "#EC407A", type: "bright", base: "pink" },
-  { name: "Lavender", hex: "#E6E6FA", type: "pastel", base: "purple" }
-];
-
-/* 👖 SAFE BOTTOM RULES */
-function isSafeBottom(color) {
-  // Only Navy allowed from blue family
-  if (color.base === "blue" && color.name !== "Navy") return false;
-
-  // Block bright & pastel pants
-  if (color.type === "bright" || color.type === "pastel") return false;
-
-  return true;
-}
-
-/* 🎨 RENDER COLORS */
-function renderColors() {
-  const topDiv = document.getElementById("topColors");
-  const bottomDiv = document.getElementById("bottomColors");
-
-  colors.forEach(color => {
-    // Tops → all colors
-    topDiv.appendChild(createCard(color, "top"));
-
-    // Bottoms → safe only
-    if (isSafeBottom(color)) {
-      bottomDiv.appendChild(createCard(color, "bottom"));
-    }
-  });
-}
-
-function createCard(color, type) {
-  const card = document.createElement("div");
-  card.className = "color-card";
-  card.innerHTML = `
-    <div class="color-box" style="background:${color.hex}"></div>
-    <div>${color.name}</div>
-  `;
-
-  card.onclick = () => {
-    document
-      .querySelectorAll(`#${type}Colors .color-card`)
-      .forEach(c => c.classList.remove("selected"));
-
-    card.classList.add("selected");
-
-    if (type === "top") selectedTop = color;
-    else selectedBottom = color;
-  };
-
-  return card;
-}
-
-/* 👟 FASHION ENGINE (STRICT & SIMPLE) */
 function checkOutfit() {
   const result = document.getElementById("result");
 
@@ -90,37 +6,82 @@ function checkOutfit() {
     return;
   }
 
-  // 🚫 Same color family
-  if (selectedTop.base === selectedBottom.base) {
+  const topBase = selectedTop.base;
+  const bottomBase = selectedBottom.base;
+  const topName = selectedTop.name;
+
+  /* 🎯 AUTO-SUGGEST RULE MAP */
+  const rules = {
+    white: ["black", "grey", "denim", "blue", "brown", "red", "maroon"],
+    "off white": ["black", "blue", "brown", "maroon"],
+    cream: ["blue", "brown", "black", "grey"],
+    black: ["white"],
+    "light grey": ["black", "blue", "brown"],
+    "light blue": ["white", "black"],
+    blue: ["white", "black"],
+    navy: ["white", "off white", "cream", "light grey", "beige", "brown"],
+    mint: ["white", "cream", "brown"],
+    olive: ["white", "cream", "brown"],
+    "forest green": ["white", "cream"],
+    beige: ["blue", "denim", "brown", "black"],
+    brown: ["white", "cream", "beige"],
+    red: ["white", "black"],
+    maroon: ["white", "beige", "cream"],
+    mustard: ["white", "black"],
+    pink: ["white", "black", "denim"],
+    lavender: ["white", "black", "brown"],
+    denim: ["white", "black", "pink", "cream"]
+  };
+
+  /* 🔑 Normalize top key */
+  const topKey =
+    topName === "Off White" ? "off white" :
+    topName === "Light Grey" ? "light grey" :
+    topName === "Light Blue" ? "light blue" :
+    topName === "Forest Green" ? "forest green" :
+    topBase;
+
+  const allowedBottoms = rules[topKey];
+
+  /* 🚫 NOT CLEAN & VERSATILE → AUTO SUGGEST */
+  if (!allowedBottoms || !allowedBottoms.includes(bottomBase)) {
+    const suggestions = allowedBottoms
+      ? allowedBottoms.map(b => capitalizeBottom(b)).join(", ")
+      : "neutral colors";
+
     result.innerHTML = `
-      ❌ Same color family doesn’t work.<br><br>
-      Try a neutral or contrast shade.
+      ❌ This combination is not clean & versatile.<br><br>
+      ✅ Try pairing this top with:<br>
+      <strong>${suggestions}</strong><br><br>
+      👟 Footwear:<br>
+      White Sneakers<br>
+      Black Boots
     `;
     return;
   }
 
-  // 🚫 Dark + Dark
-  if (selectedTop.type === "dark" && selectedBottom.type === "dark") {
-    result.innerHTML = `
-      ❌ Too dark overall.<br><br>
-      Add a lighter top or neutral bottom.
-    `;
-    return;
-  }
-
-  // 👟 Only black & white sneakers
-  const shoes = ["White Sneakers", "Black Sneakers"];
-
+  /* ✅ CLEAN & VERSATILE */
   result.innerHTML = `
-    ✅ Clean, balanced outfit. Easy to wear.<br><br>
-    👟 Best shoe options:<br>
-    ${shoes.join("<br>")}
+    ✅ Clean and versatile outfit.<br><br>
+    👟 Best footwear options:<br>
+    White Sneakers<br>
+    Black Boots
   `;
 }
 
-/* 🚀 INIT */
-renderColors();
-
+/* 🔤 Helper for readable names */
+function capitalizeBottom(base) {
+  const map = {
+    white: "White",
+    black: "Black",
+    grey: "Grey",
+    blue: "Navy Blue",
+    brown: "Brown",
+    beige: "Beige",
+    denim: "Denim Blue",
+    red: "Maroon"
+  };
+  return map[base] || base;
+}
 
   
- 
