@@ -177,3 +177,4 @@ function formatName(base) {
    🚀 INIT
    ========================= */
 renderColors();
+
